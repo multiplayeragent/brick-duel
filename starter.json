@@ -1,0 +1,21 @@
+{
+  "name": "Brick Duel",
+  "genre": "arcade",
+  "dim": "2D",
+  "mode": "Versus",
+  "players": "2–4",
+  "hook": "Break bricks to wreck your rivals' boards.",
+  "how": "Everyone plays their own brick breaker side by side. Smash a glowing brick to hit a rival with a faster ball, a smaller paddle or junk rows. Lose all your balls and you're out; last board standing wins.",
+  "controls": "Mouse or ← → to move, click or Space to launch; on touch, drag to move and tap to launch",
+  "uses": [
+    ["Live sync", "You watch every rival's board, ball and paddle as they play."],
+    ["Host-run rounds", "The host's browser runs the match: who is out, the winner, the restart, and which rival each attack hits. If it leaves, the next player takes over."],
+    ["Bots", "Bots fill empty seats, play their own boards and send attacks too."],
+    ["Leaderboard", "Each player's best match score."]
+  ],
+  "ideas": [
+    "Add a laser power-up that shoots bricks",
+    "Let me pick which rival my attacks hit",
+    "Make the bricks candy and the ball a gumball"
+  ]
+}
