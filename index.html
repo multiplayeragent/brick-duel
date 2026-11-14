@@ -18,6 +18,7 @@
   .card h2 { margin: 0 0 6px; font-size: 26px; }
   .card h3 { margin: 12px 0 0; font-size: 12px; letter-spacing: .1em; color: #9fa6dd; }
   .card ol { text-align: left; margin: 8px 0; padding-left: 26px; font-size: 14px; } .card li span { float: right; font-variant-numeric: tabular-nums; } .card li.me { color: #ffd23f; font-weight: 700; }
+  .card li.note { list-style: none; margin-left: -26px; } /* a status line, not a numbered entry */
   button.go { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: #ffd23f; color: #1a1d3d; font: 800 17px system-ui, sans-serif; cursor: pointer; margin-top: 8px; }
   #oNext { color: #9fa6dd; font-size: 13px; margin-top: 8px; }
 </style>
@@ -30,7 +31,7 @@
 <div class="hud" id="net">Connecting…</div>
 <div id="over" hidden><div class="card">
   <h2 id="oTitle"></h2><ol id="places"></ol>
-  <h3>BEST MATCH SCORE</h3><ol id="board"><li>Loading the leaderboard…</li></ol>
+  <h3>BEST MATCH SCORE</h3><ol id="board"><li class="note">Loading the leaderboard…</li></ol>
   <button class="go" id="again">Play again</button><div id="oNext"></div>
 </div></div>
 <script>
@@ -724,11 +725,11 @@ function hud(m) {
   overFor = m.id;
   const list = $("board"), score = me.B && me.m === m.id ? me.B.score : 0;
   if (m.winner === net.sessionId) { tone(660, 300, "triangle", 0.07); setTimeout(() => tone(990, 400, "triangle", 0.07), 160); }
-  if (!board) { list.innerHTML = "<li>Leaderboards need a connection.</li>"; return; }
-  list.innerHTML = "<li>Loading…</li>";
+  if (!board) { list.innerHTML = `<li class="note">Leaderboards need a connection.</li>`; return; }
+  list.innerHTML = `<li class="note">Loading…</li>`;
   (score > 0 ? board.submit(score).catch(() => null) : Promise.resolve()).then(() => board.top(10)).then(({ entries }) => {
-    list.innerHTML = entries.length ? entries.map((e) => `<li>${esc(e.username || "Player")}<span>${e.score}</span></li>`).join("") : "<li>No scores yet. Break some bricks.</li>";
-  }).catch(() => { list.innerHTML = "<li>Couldn't load the leaderboard.</li>"; });
+    list.innerHTML = entries.length ? entries.map((e) => `<li>${esc(e.username || "Player")}<span>${e.score}</span></li>`).join("") : `<li class="note">No scores yet. Break some bricks.</li>`;
+  }).catch(() => { list.innerHTML = `<li class="note">Couldn't load the leaderboard.</li>`; });
 }
 $("again").addEventListener("click", () => { if (isHost()) onReady(net.sessionId); else net.send("ready", { r: 1 }); });
 
@@ -764,7 +765,7 @@ cv.addEventListener("pointermove", (e) => {
 });
 cv.addEventListener("pointerdown", (e) => {
   e.preventDefault(); unlockAudio();
-  if (e.pointerType === "mouse") { ctl.tx = toBoardX(e.clientX); ctl.launch = true; return; }
+  if (e.pointerType === "mouse") { ctl.tx = toBoardX(e.clientX); if (e.button === 0) ctl.launch = true; return; }
   Object.assign(drag, { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: performance.now(), from: me.B ? me.B.px : ctl.tx });
   cv.setPointerCapture(e.pointerId);
 });
@@ -774,6 +775,7 @@ cv.addEventListener("pointerup", (e) => {
   if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 12 && performance.now() - drag.t0 < 300) ctl.launch = true;
 });
 cv.addEventListener("pointercancel", () => { drag.id = -1; });
+cv.addEventListener("contextmenu", (e) => e.preventDefault()); // right-click doesn't open the browser menu over the game
 document.addEventListener("touchmove", (e) => { if (!e.target.closest(".card")) e.preventDefault(); }, { passive: false });
 
 // ── MAIN LOOP ───────────────────────────────────────────────────────────────────────
